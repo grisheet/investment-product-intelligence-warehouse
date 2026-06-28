@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Product Intelligence Warehouse | Production-Grade SQL Analytics</title>
+    <meta name="description" content="A production-style PostgreSQL analytics warehouse that delivers unified, decision-ready insights across AUM growth, net flows, benchmark performance, client retention, and channel economics.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0A66C2;
+            --primary-dark: #004182;
+            --secondary: #16A34A;
+            --accent: #0EA5E9;
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --bg-light: #F8FAFC;
+            --text-dark: #0F172A;
+            --text-light: #F1F5F9;
+            --text-gray: #64748B;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text-light);
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(10, 102, 194, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            z-index: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            background: rgba(10, 102, 194, 0.2);
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            color: var(--accent);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #F1F5F9 0%, #94A3B8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: clamp(1.125rem, 2vw, 1.5rem);
+            color: var(--text-gray);
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(10, 102, 194, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(10, 102, 194, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .feature-description {
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+
+        .architecture-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 3rem auto;
+            max-width: 900px;
+        }
+
+        .layer-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .layer {
+            flex: 1;
+            min-width: 150px;
+            background: rgba(10, 102, 194, 0.1);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .tech-badge {
+            padding: 0.75rem 1.5rem;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-weight: 500;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tables-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .table-card {
+            background: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid var(--accent);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .table-name {
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1.125rem;
+        }
+
+        .table-description {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .screenshot-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .screenshot-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .screenshot-title {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .screenshot-caption {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+        }
+
+        footer {
+            background: var(--bg-dark);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--accent);
+        }
+
+        .footer-text {
+            color: var(--text-gray);
+            font-size: 0.9375rem;
+        }
+
+        @media (max-width: 768px) {
+            .layer-flow {
+                flex-direction: column;
+            }
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">Production-Grade Analytics Infrastructure</div>
+            <h1>Investment Product Intelligence Warehouse</h1>
+            <p class="subtitle">
+                A <span class="highlight">production-style PostgreSQL analytics warehouse</span> that gives financial product leaders a unified, decision-ready view of AUM growth, net flows, benchmark-relative performance, client retention, and channel economics — built the way institutional analytics teams actually build it.
+            </p>
+            <div class="cta-group">
+                <a href="https://github.com/grisheet/investment-product-intelligence-warehouse" class="btn btn-primary">
+                    <span>View on GitHub</span>
+                    <span>→</span>
+                </a>
+                <a href="#architecture" class="btn btn-secondary">Explore Architecture</a>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">Schema Layers</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">8</span>
+                    <span class="stat-label">Raw Tables</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">Mart KPI Tables</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Native SQL</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">The Business Problem</h2>
+            <p class="section-subtitle">
+                A financial product organization managing a multi-product investment platform cannot make confident decisions using siloed reports. It needs a unified analytics layer.
+            </p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3 class="feature-title">AUM Growth Analysis</h3>
+                <p class="feature-description">
+                    Track which products are growing assets under management fastest across regions, channels, and client segments.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3 class="feature-title">Net Flow Intelligence</h3>
+                <p class="feature-description">
+                    Identify where new money is flowing in and where redemptions are occurring. Spot commercial momentum shifts early.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Benchmark Performance</h3>
+                <p class="feature-description">
+                    Calculate excess returns vs. benchmark for every product. See which products are actually earning their keep.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3 class="feature-title">Client Retention</h3>
+                <p class="feature-description">
+                    Monitor client stability and churn risk by segment, region, and distribution channel. Know who's staying and who's leaving.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3 class="feature-title">Channel Economics</h3>
+                <p class="feature-description">
+                    Understand which distribution channels and regions drive the most commercial value and concentration risk.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Signal Correlation</h3>
+                <p class="feature-description">
+                    Detect when investment performance diverges from commercial momentum — the signals that matter most.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="architecture" class="section">
+        <div class="section-header">
+            <h2 class="section-title">Architecture</h2>
+            <p class="section-subtitle">
+                A medallion architecture with four clearly separated layers — raw, staging, mart, and analytics.
+            </p>
+        </div>
+        <div class="architecture-diagram">
+            <div class="layer-flow">
+                <div class="layer">Raw</div>
+                <div class="arrow">→</div>
+                <div class="layer">Staging</div>
+                <div class="arrow">→</div>
+                <div class="layer">Mart</div>
+                <div class="arrow">→</div>
+                <div class="layer">Analytics</div>
+            </div>
+            <div class="features-grid">
+                <div>
+                    <h4 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.125rem;">Raw Layer</h4>
+                    <p style="color: var(--text-gray); font-size: 0.9375rem;">
+                        Source-fidelity operational tables — products, clients, advisors, transactions, NAV, positions. No transformations applied.
+                    </p>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.125rem;">Staging Layer</h4>
+                    <p style="color: var(--text-gray); font-size: 0.9375rem;">
+                        Cleaned, standardized, and enriched views. Business logic applied once, reused everywhere downstream.
+                    </p>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.125rem;">Mart Layer</h4>
+                    <p style="color: var(--text-gray); font-size: 0.9375rem;">
+                        Denormalized KPI fact tables. Optimized for analytical queries and executive reporting dashboards.
+                    </p>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.125rem;">Analytics Layer</h4>
+                    <p style="color: var(--text-gray); font-size: 0.9375rem;">
+                        Quality-control assertions and validation queries. Ensures model integrity before outputs are trusted.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">Mart Tables — What Gets Produced</h2>
+            <p class="section-subtitle">
+                Four denormalized, business-facing KPI fact tables designed for executive-level analytics.
+            </p>
+        </div>
+        <div class="tables-showcase">
+            <div class="table-card">
+                <div class="table-name">fact_product_monthly_kpis</div>
+                <div class="table-description">
+                    Product-level performance and flow summary. AUM, net flows, NAV, returns, and excess returns per product per month.
+                </div>
+            </div>
+            <div class="table-card">
+                <div class="table-name">fact_client_monthly_kpis</div>
+                <div class="table-description">
+                    Client retention and AUM snapshot. Flags active vs. churned clients by region and distribution channel.
+                </div>
+            </div>
+            <div class="table-card">
+                <div class="table-name">fact_channel_monthly_kpis</div>
+                <div class="table-description">
+                    Channel and regional commercial summary. Active clients, product breadth, and AUM concentration by channel.
+                </div>
+            </div>
+            <div class="table-card">
+                <div class="table-name">fact_product_rankings</div>
+                <div class="table-description">
+                    Product competitive ranking using window functions. Ranks by AUM size, net flows, and benchmark-relative performance.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background: var(--bg-card);">
+        <div class="section-header">
+            <h2 class="section-title">Tech Stack</h2>
+            <p class="section-subtitle">
+                Built with production-grade technologies and architectural patterns.
+            </p>
+        </div>
+        <div class="tech-stack">
+            <div class="tech-badge">🐘 PostgreSQL 16</div>
+            <div class="tech-badge">📊 Medallion Architecture</div>
+            <div class="tech-badge">🔄 Native SQL CTEs</div>
+            <div class="tech-badge">⚡ Window Functions</div>
+            <div class="tech-badge">⭐ Star-Schema Fact Tables</div>
+            <div class="tech-badge">✅ SQL Quality Assertions</div>
+            <div class="tech-badge">🚀 CI/CD Ready</div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">Output Examples</h2>
+            <p class="section-subtitle">
+                Executive-ready analytical outputs validated through quality checks.
+            </p>
+        </div>
+        <div class="screenshots-grid">
+            <div class="screenshot-card">
+                <img src="executive-query-output.png" alt="Executive query output" loading="lazy">
+                <div class="screenshot-title">Executive Query Output</div>
+                <div class="screenshot-caption">Leadership-level analytics across growth, flows, and performance dimensions.</div>
+            </div>
+            <div class="screenshot-card">
+                <img src="quality-checks-output.png" alt="Quality checks output" loading="lazy">
+                <div class="screenshot-title">Quality Checks Output</div>
+                <div class="screenshot-caption">Data validation assertions — referential integrity, null checks, and flow balance.</div>
+            </div>
+            <div class="screenshot-card">
+                <img src="warehouse-build-verification.png" alt="Warehouse build verification" loading="lazy">
+                <div class="screenshot-title">Warehouse Build Verification</div>
+                <div class="screenshot-caption">Schema deployment confirmation across all four layers.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background: linear-gradient(135deg, var(--primary-dark), var(--bg-dark)); padding: 5rem 2rem;">
+        <div class="section-header">
+            <h2 class="section-title">Why This Architecture Matters</h2>
+            <p class="section-subtitle" style="max-width: 900px;">
+                Most analytics projects are a folder of ad-hoc queries. This warehouse is architected differently — intentionally.
+            </p>
+        </div>
+        <div class="features-grid">
+            <div style="text-align: left;">
+                <h4 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.25rem;">🔒 Separation of Concerns</h4>
+                <p style="color: var(--text-gray); line-height: 1.7;">
+                    Raw, staging, mart, and analytics layers are fully decoupled. Changes in source data structure are absorbed at staging without touching marts.
+                </p>
+            </div>
+            <div style="text-align: left;">
+                <h4 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.25rem;">📍 Single Source of Truth</h4>
+                <p style="color: var(--text-gray); line-height: 1.7;">
+                    Business logic is defined once in staging and inherited consistently downstream. No divergent definitions of "net flow" or "excess return."
+                </p>
+            </div>
+            <div style="text-align: left;">
+                <h4 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.25rem;">♻️ Reusable KPI Tables</h4>
+                <p style="color: var(--text-gray); line-height: 1.7;">
+                    The mart layer is designed for repeated querying. Executive dashboards, ad-hoc analysis, and data exports read from the same validated tables.
+                </p>
+            </div>
+            <div style="text-align: left;">
+                <h4 style="color: var(--accent); margin-bottom: 1rem; font-size: 1.25rem;">✅ Built-In Quality Gates</h4>
+                <p style="color: var(--text-gray); line-height: 1.7;">
+                    No executive output is produced without passing quality checks. This is how institutional data teams enforce trust in their numbers.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://github.com/grisheet/investment-product-intelligence-warehouse" class="footer-link">GitHub Repository</a>
+                <a href="https://github.com/grisheet/investment-product-intelligence-warehouse/blob/main/business-case.md" class="footer-link">Business Case</a>
+                <a href="https://github.com/grisheet/investment-product-intelligence-warehouse/blob/main/findings.md" class="footer-link">Findings Framework</a>
+                <a href="https://github.com/grisheet" class="footer-link">Author</a>
+            </div>
+            <p class="footer-text">
+                Built by <a href="https://github.com/grisheet" style="color: var(--accent); text-decoration: none;">Grisheet</a> — designed to reflect how institutional product analytics teams structure their data infrastructure.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
