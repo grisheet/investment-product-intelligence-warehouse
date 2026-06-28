@@ -213,7 +213,10 @@ This project uses synthetic data for demonstration purposes only. It does not re
 ## Screenshots
 
 ### Executive query output
-![Executive query output](./dashboard/screenshots/executive-query-output.png)
+![Executive query output](./executive-query-output.png)
+
+### Quality checks output
+![Quality checks output](./quality-checks-output.png)
 
 ### Warehouse build verification
-![Warehouse build verification](./dashboard/screenshots/warehouse-build-verification.png)
+![Warehouse build verification](./warehouse-build-verification.png)
